@@ -21,7 +21,9 @@ lang: es
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(dplyr)
-
+library(plotly)
+library(ggplot2)
+library(tidyr)
 ```
 ## Problema 1
 La siguiente figura sugiere como estimar el valor de **$\pi$** con una simulación. En la figura, un circuito con un área igual a **$\pi/4$**, está inscrito en un cuadrado cuya área es igual a 1. Se elige de forma aleatoria **$n$** puntos dentro del cuadrado. La probabilidad de que un punto esté dentro del círculo es igual a la fracción del área del cuadrado que abarca a este, la cual es **$\pi/4$**. Por tanto, se puede estimar el valor de **$\pi/4$** al contar el número de puntos dentro del círculo, para obtener la estimación de **$\pi/4$**. De este último resultado se encontrar una aproximación para el valor de **$\pi$**.
@@ -143,24 +145,51 @@ estimador4 <- function(m) { (min(m) + max(m)) / 2 }
 
 estimarMuestra <- function(data, n_muestra, lam) {
   teta <- 1 / lam
-  muestra <- sample_n(df, n_muestra)
-  t1 <- apply(df, 1, estimador1)
-  t2 <- apply(df, 1, estimador2)
-  t3 <- apply(df, 1, estimador3)
-  t4 <- apply(df, 1, estimador4)
-  media <- apply(data.frame(t1, t2, t3, t4), 2, mean)
-  varianza <- apply(data.frame(t1, t2, t3, t4), 2, var)
+  muestra <- data[sample(nrow(df), size=n_muestra), ]
+  t1 <- apply(muestra, 1, estimador1)
+  t2 <- apply(muestra, 1, estimador2)
+  t3 <- apply(muestra, 1, estimador3)
+  t4 <- apply(muestra, 1, estimador4)
+  return(data.frame(t1, t2, t3, t4))
+}
+calcularMetricas <- function(datos, n_muestra, teta) {
+  media <- apply(datos, 2, mean)
+  varianza <- apply(datos, 2, var)
   sesgo <- media - teta
-  boxplot(t1, t2 ,t3, t4, col = c("#377eb8", "#ff7f00", "#4daf4a", "#f781bf"), main = paste("n = ", n_muestra))
-  abline(h=teta, col="red", lwd=2)
   return (data.frame(media = media, varianza = varianza, n=n_muestra, sesgo=sesgo))
 }
 
-res20 <- estimarMuestra(df, 20, lam)
-res50 <- estimarMuestra(df, 50, lam)
-res100 <- estimarMuestra(df, 100, lam)
-res1000 <- estimarMuestra(df, 1000, lam)
+obtenerGrafica <- function(datos, n_muestra, lam) {
+  teta <- 1 / lam
+  d <- pivot_longer(datos, cols = c(t1, t2, t3, t4), names_to = "categoria", values_to = "valor")
+  print(d)
+  bp <- ggplot(d, aes(x = categoria, y = valor, fill = categoria)) +
+    geom_boxplot() +
+    geom_hline(yintercept = teta, color = "red", linetype = "dashed", size = 1) +
+    scale_fill_manual(values = c("#377eb8", "#ff7f00", "#4daf4a", "#f781bf")) +
+    labs(title = paste("n =", n_muestra), x = "Categoría", y = "Valor") +
+    theme_minimal() 
+  bp <- ggplotly(bp)
+  return (bp)
+}
+```
 
+```{r}
+d <- estimarMuestra(df, 20, lam)
+calculos <- rbind(data.frame(), calcularMetricas(d, 20, lam))
+obtenerGrafica(d, 20, lam)
+
+d <- estimarMuestra(df, 50, lam)
+calculos <- rbind(calculos, calcularMetricas(d, 50, lam))
+obtenerGrafica(d, 50, lam)
+
+d <- estimarMuestra(df, 100, lam)
+calculos <- rbind(calculos, calcularMetricas(d, 100, lam))
+obtenerGrafica(d, 100, lam)
+
+d <- estimarMuestra(df, 1000, lam)
+calculos <- rbind(calculos, calcularMetricas(d, 1000, lam))
+obtenerGrafica(d, 1000, lam)
 ```
 
 
