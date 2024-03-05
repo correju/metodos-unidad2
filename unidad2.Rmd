@@ -1,0 +1,161 @@
+---
+title: "Actividad unidad 2"
+output: html_document
+date: "2024-03-02"
+lang: es
+---
+
+
+
+<style type="text/css">
+  body {
+    font-size: 16px;
+    font-family: Arial, sans-serif;
+    margin-bottom: 20px;
+  }
+  li {
+    margin-bottom: 40px;
+  }
+}
+</style>
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+
+```
+## Problema 1
+La siguiente figura sugiere como estimar el valor de **$\pi$** con una simulación. En la figura, un circuito con un área igual a **$\pi/4$**, está inscrito en un cuadrado cuya área es igual a 1. Se elige de forma aleatoria **$n$** puntos dentro del cuadrado. La probabilidad de que un punto esté dentro del círculo es igual a la fracción del área del cuadrado que abarca a este, la cual es **$\pi/4$**. Por tanto, se puede estimar el valor de **$\pi/4$** al contar el número de puntos dentro del círculo, para obtener la estimación de **$\pi/4$**. De este último resultado se encontrar una aproximación para el valor de **$\pi$**.
+
+<div style="text-align: center">
+![Imagen con circulo circunscrito](pi.png)
+</div>
+
+
+Pasos sugeridos:
+
+Genere n coordenadas $x: X1, . . . , Xn$. Utilice la distribución uniforme con valor mínimo de 0 y valor máximo de 1. La distribución uniforme genera variables aleatorias que tienen la misma probabilidad de venir de cualquier parte del intervalo (0,1).
+
+Genere 1000 coordenadas $y: Y1,...,Yn$, utilizando nuevamente la distribución uniforme con valor mínimo de 0 y valor máximo de 1.
+
+```{r}
+set.seed(123)
+n1 <- 1000
+n2 <- 10000
+n3 <- 100000
+x_1000 <- runif(n1, 0, 1)
+y_1000 <- runif(n1, 0, 1)
+
+x_10000 <- runif(n2, 0, 1)
+y_10000 <- runif(n2, 0, 1)
+
+x_100000 <- runif(n3, 0, 1)
+y_100000 <- runif(n3, 0, 1)
+```
+
+Cada punto (Xi,Yi) se encuentra dentro del círculo si su distancia desde el centro (0.5,0.5) es menor a 0.5. Para cada par (Xi,Yi) determinesi la distancia desde el centro es menor a 0.5. Esto último se puede realizar al calcular el valor (Xi−0.5)2+(Yi−0.5)2, que es el cuadrado de la distancia, y al determinar si es menor que 0.25.
+
+**¿Cuántos de los puntos están dentro del círculo?**
+```{r}
+puntos_dentro_1000 <- sum((x_1000 - 0.5)^2 + (y_1000 - 0.5)^2 <= 0.25)
+puntos_dentro_10000 <- sum((x_10000 - 0.5)^2 + (y_10000 - 0.5)^2 <= 0.25)
+puntos_dentro_100000 <- sum((x_100000 - 0.5)^2 + (y_100000 - 0.5)^2 <= 0.25)
+```
+El numero de puntos dentro del circulo es de: **`r puntos_dentro_1000`**
+
+**¿Cuál es su estimación de $\pi$?**
+
+$\pi = 4 \times \frac{\text{puntos dentro}}{n}$
+
+```{r}
+pi_estimado_1000 <- 4 * puntos_dentro_1000 / n1
+pi_estimado_10000 <- 4 * puntos_dentro_10000 / n2
+pi_estimado_100000 <- 4 * puntos_dentro_100000 / n3
+```
+
+La estimación de **$\large\pi$** con **$\large n=`r n1`$** es de: **`r pi_estimado_1000`**
+
+La estimación de **$\large\pi$** con **$\large n=`r n2`$** es de: **`r pi_estimado_10000`**
+
+La estimación de **$\large\pi$** con **$\large n=`r n3`$** es de: **`r pi_estimado_100000`**
+
+**¿Cuál es el error absoluto de su estimación?**
+
+$\Large|\pi - \pi_{estimado}|$
+
+```{r}
+error_absoluto_1000 <- abs(pi - pi_estimado_1000)
+error_absoluto_10000 <- abs(pi - pi_estimado_10000)
+error_absoluto_100000 <- abs(pi - pi_estimado_100000)
+```
+
+Error absoluto para muestra de **$n=`r n1`$** : **$`r error_absoluto_1000`$**
+
+Error absoluto para muestra de **$n=`r n3`$** : **$`r error_absoluto_10000`$**
+
+Error absoluto para muestra de **$n=`r n2`$** :  **$`r error_absoluto_100000`$**
+
+**¿Cuál es el error relativo de su estimación?**
+
+$\Large\frac{|\pi - \pi_{estimado}|}{\pi} = \frac{|\pi - `r pi_estimado_1000`|}{\pi}$
+
+```{r}
+error_relativo_1000 <- abs(pi - pi_estimado_1000) / pi
+error_relativo_10000 <- abs(pi - pi_estimado_10000) / pi
+error_relativo_100000 <- abs(pi - pi_estimado_100000) / pi
+```
+
+Error relativo para muestra de **$n=`r n1`$** : **$`r error_relativo_1000`$**
+
+Error relativo para muestra de **$n=`r n3`$** : **$`r error_relativo_10000`$**
+
+Error relativo para muestra de **$n=`r n2`$** :  **$`r error_relativo_100000`$**
+
+
+
+
+
+## Problema 2
+
+La simulación ayuda a entender y validad las propiedades de los estimadores estadísticos como son. insesgadez, eficiencia y la consistencia principalmente. El siguiente problema permite evidenciar las principales características de un grupo de estimadores propuestos para la estimación de un parámetro asociado a un modelo de probabilidad.
+
+Sean $X1, X2, X3 \,y\, X4$, una muestra aleatoria de tamaño **$n=4$** cuya población la conforma una distribución exponencial con parámetro $\theta$ desconocido. Determine las características de cada uno de los siguientes estimadores propuestos:
+
+```{r}
+n <- 4
+m = 5000
+lam <- 0.5
+
+rep = rexp(m*n,rate = lam)
+df = data.frame(matrix(rep,nrow = m, ncol = n, byrow = TRUE))
+
+estimador1 <- function(m) { ((m[1] + m[2]) / 6) + ((m[3] + m[4]) / 3) }
+estimador2 <- function(m) { (m[1] + 2*m[2] + 3*m[3] + 4*m[4]) / 5 }
+estimador3 <- function(m) { mean(m) }
+estimador4 <- function(m) { (min(m) + max(m)) / 2 }
+
+estimarMuestra <- function(data, n_muestra, lam) {
+  teta <- 1 / lam
+  muestra <- sample_n(df, n_muestra)
+  t1 <- apply(df, 1, estimador1)
+  t2 <- apply(df, 1, estimador2)
+  t3 <- apply(df, 1, estimador3)
+  t4 <- apply(df, 1, estimador4)
+  media <- apply(data.frame(t1, t2, t3, t4), 2, mean)
+  varianza <- apply(data.frame(t1, t2, t3, t4), 2, var)
+  sesgo <- media - teta
+  boxplot(t1, t2 ,t3, t4, col = c("#377eb8", "#ff7f00", "#4daf4a", "#f781bf"), main = paste("n = ", n_muestra))
+  abline(h=teta, col="red", lwd=2)
+  return (data.frame(media = media, varianza = varianza, n=n_muestra, sesgo=sesgo))
+}
+
+res20 <- estimarMuestra(df, 20, lam)
+res50 <- estimarMuestra(df, 50, lam)
+res100 <- estimarMuestra(df, 100, lam)
+res1000 <- estimarMuestra(df, 1000, lam)
+
+```
+
+
+
+
+
