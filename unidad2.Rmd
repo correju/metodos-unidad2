@@ -1,6 +1,12 @@
 ---
 title: "Actividad unidad 2"
-output: html_document
+output: 
+  html_document:
+    toc: true
+    toc_float:
+      collapsed: false
+      smooth_scroll: true
+    toc_position: left
 date: "2024-03-02"
 lang: es
 ---
@@ -12,9 +18,6 @@ lang: es
     font-size: 16px;
     font-family: Arial, sans-serif;
     margin-bottom: 20px;
-  }
-  li {
-    margin-bottom: 40px;
   }
 }
 </style>
@@ -40,6 +43,8 @@ Genere n coordenadas $x: X1, . . . , Xn$. Utilice la distribución uniforme con 
 
 Genere 1000 coordenadas $y: Y1,...,Yn$, utilizando nuevamente la distribución uniforme con valor mínimo de 0 y valor máximo de 1.
 
+### Datos simulación
+
 ```{r}
 set.seed(123)
 n1 <- 1000
@@ -55,7 +60,9 @@ x_100000 <- runif(n3, 0, 1)
 y_100000 <- runif(n3, 0, 1)
 ```
 
-Cada punto (Xi,Yi) se encuentra dentro del círculo si su distancia desde el centro (0.5,0.5) es menor a 0.5. Para cada par (Xi,Yi) determinesi la distancia desde el centro es menor a 0.5. Esto último se puede realizar al calcular el valor (Xi−0.5)2+(Yi−0.5)2, que es el cuadrado de la distancia, y al determinar si es menor que 0.25.
+Cada punto (Xi,Yi) se encuentra dentro del círculo si su distancia desde el centro (0.5,0.5) es menor a 0.5. Para cada par (Xi,Yi) determine si la distancia desde el centro es menor a 0.5. Esto último se puede realizar al calcular el valor (Xi−0.5)2+(Yi−0.5)2, que es el cuadrado de la distancia, y al determinar si es menor que 0.25.
+
+### Respuestas
 
 **¿Cuántos de los puntos están dentro del círculo?**
 ```{r}
@@ -63,7 +70,7 @@ puntos_dentro_1000 <- sum((x_1000 - 0.5)^2 + (y_1000 - 0.5)^2 <= 0.25)
 puntos_dentro_10000 <- sum((x_10000 - 0.5)^2 + (y_10000 - 0.5)^2 <= 0.25)
 puntos_dentro_100000 <- sum((x_100000 - 0.5)^2 + (y_100000 - 0.5)^2 <= 0.25)
 ```
-El numero de puntos dentro del circulo es de: **`r puntos_dentro_1000`**
+El número de puntos dentro del círculo es de: **`r puntos_dentro_1000`**
 
 **¿Cuál es su estimación de $\pi$?**
 
@@ -153,7 +160,8 @@ estimarMuestra <- function(data, n_muestra, lam) {
   t4 <- apply(muestra, 1, estimador4)
   return(data.frame(t1, t2, t3, t4))
 }
-calcularMetricas <- function(datos, n_muestra, teta) {
+calcularMetricas <- function(datos, n_muestra, lam) {
+  teta <- 1 / lam
   media <- apply(datos, 2, mean)
   varianza <- apply(datos, 2, var)
   sesgo <- media - teta
@@ -167,7 +175,7 @@ obtenerGrafica <- function(datos, n_muestra, lam) {
     geom_boxplot() +
     geom_hline(yintercept = teta, color = "red", linetype = "dashed", linewidth = 1) +
     scale_fill_manual(values = c("#377eb8", "#ff7f00", "#4daf4a", "#f781bf")) +
-    labs(title = paste("n =", n_muestra), x = "Categoría", y = "Valor") +
+    labs(title = paste("m =", n_muestra), x = "Categoría", y = "Valor") +
     theme_minimal() 
   bp <- ggplotly(bp)
   return (bp)
@@ -176,25 +184,51 @@ obtenerGrafica <- function(datos, n_muestra, lam) {
 
 ```{r}
 d <- estimarMuestra(df, 20, lam)
-calculos <- rbind(data.frame(), calcularMetricas(d, 20, lam))
+calculos20 <- calcularMetricas(d, 20, lam)
 obtenerGrafica(d, 20, lam)
 
 d <- estimarMuestra(df, 50, lam)
-calculos <- rbind(calculos, calcularMetricas(d, 50, lam))
+calculos50 <- calcularMetricas(d, 50, lam)
 obtenerGrafica(d, 50, lam)
 
 d <- estimarMuestra(df, 100, lam)
-calculos <- rbind(calculos, calcularMetricas(d, 100, lam))
+calculos100 <- calcularMetricas(d, 100, lam)
 obtenerGrafica(d, 100, lam)
 
 d <- estimarMuestra(df, 1000, lam)
-calculos <- rbind(calculos, calcularMetricas(d, 1000, lam))
+calculos1000 <- calcularMetricas(d, 1000, lam)
 obtenerGrafica(d, 1000, lam)
 ```
 
+#### Resultados m=20
+
 ```{r}
-datatable(calculos, options = list(pageLength = 10))
+datatable(calculos20, options = list(pageLength = 20))
 ```
+
+#### Resultados m=50
+
+```{r}
+datatable(calculos50, options = list(pageLength = 20))
+```
+
+#### Resultados m=100
+
+```{r}
+datatable(calculos100, options = list(pageLength = 20))
+```
+
+#### Resultados m=1000
+
+```{r}
+datatable(calculos1000, options = list(pageLength = 20))
+```
+
+#### Conclusiones
+
+* Podemos ver que $\hat\theta_1$ y $\hat\theta_3$ son insesgados, eficientes y consistentes para las muestras $n = 20$, $n = 50$,$n = 100$ y $n = 1000$.
+* Para $\hat\theta_4$ es insesgado, eficiente y consistente para las muestras $n > 100$.
+* El estimador $\hat\theta_2$ para sus tres indicadores es muy grande, aunque se ve que comienza a mejorar a medida que el tamaño de la muestra aumenta.
 
 
 
