@@ -17,7 +17,6 @@ lang: es
   body {
     font-size: 16px;
     font-family: Arial, sans-serif;
-    margin-bottom: 20px;
   }
 }
 </style>
@@ -138,6 +137,8 @@ Sean $X1, X2, X3 \,y\, X4$, una muestra aleatoria de tamaño **$n=4$** cuya pobl
 
 1. $\hat{\theta}_4 = \frac{\min\{X_1, X_2, X_3, X_4\} + \max\{X_1, X_2, X_3, X_4\}}{2}$
 
+### Formulación de la simulación
+
 ```{r}
 n <- 4
 m = 5000
@@ -182,7 +183,7 @@ obtenerGrafica <- function(datos, n_muestra, lam) {
 }
 ```
 
-```{r}
+```{r, echo=FALSE}
 d <- estimarMuestra(df, 20, lam)
 calculos20 <- calcularMetricas(d, 20, lam)
 obtenerGrafica(d, 20, lam)
@@ -200,31 +201,32 @@ calculos1000 <- calcularMetricas(d, 1000, lam)
 obtenerGrafica(d, 1000, lam)
 ```
 
-#### Resultados m=20
+### Resultados m=20
 
-```{r}
-datatable(calculos20, options = list(pageLength = 20))
+```{r, echo=FALSE}
+datatable(calculos20, options = list(pageLength = 20, dom = 't'))
 ```
 
-#### Resultados m=50
+### Resultados m=50
 
-```{r}
-datatable(calculos50, options = list(pageLength = 20))
+```{r, echo=FALSE}
+datatable(calculos50, options = list(pageLength = 20, dom = 't'))
 ```
 
-#### Resultados m=100
+### Resultados m=100
 
-```{r}
-datatable(calculos100, options = list(pageLength = 20))
+```{r, echo=FALSE}
+datatable(calculos100, options = list(pageLength = 20, dom = 't'))
+
 ```
 
-#### Resultados m=1000
+### Resultados m=1000
 
-```{r}
-datatable(calculos1000, options = list(pageLength = 20))
+```{r, echo=FALSE}
+datatable(calculos1000, options = list(pageLength = 20, dom = 't'))
 ```
 
-#### Conclusiones
+### Conclusiones
 
 * Podemos ver que $\hat\theta_1$ y $\hat\theta_3$ son insesgados, eficientes y consistentes para las muestras $n = 20$, $n = 50$,$n = 100$ y $n = 1000$.
 * Para $\hat\theta_4$ es insesgado, eficiente y consistente para las muestras $n > 100$.
