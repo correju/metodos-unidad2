@@ -284,10 +284,10 @@ proporcion <- calcularProporcion(lote, 10, "enferma")
 
 ```{r}
 n <- 500
-resultados <- replicate(500, calcularProporcion(lote, 10, "enferma"))
+resultados <- replicate(500, calcularProporcion(lote, 100, "enferma"))
 g <- ggplot(data.frame(resultados), aes(x = resultados)) +
   geom_histogram(fill = "#377eb8", binwidth = 0.1) + 
-  geom_vline(xintercept = median(resultados), color = "#ff7f00", size = 1.5, linetype = "solid") +
+  geom_vline(xintercept = median(resultados), color = "#ff7f00", linewidth = 1.5, linetype = "solid") +
   labs(title = "Histograma de la muestra", x = "Estado", y = "Frecuencia") +
   theme_minimal()
 ggplotly(g)
