@@ -29,6 +29,7 @@ library(tidyr)
 library(DT)
 ```
 ## Problema 1
+### Estimación del valor de $\pi$
 La siguiente figura sugiere como estimar el valor de **$\pi$** con una simulación. En la figura, un circuito con un área igual a **$\pi/4$**, está inscrito en un cuadrado cuya área es igual a 1. Se elige de forma aleatoria **$n$** puntos dentro del cuadrado. La probabilidad de que un punto esté dentro del círculo es igual a la fracción del área del cuadrado que abarca a este, la cual es **$\pi/4$**. Por tanto, se puede estimar el valor de **$\pi/4$** al contar el número de puntos dentro del círculo, para obtener la estimación de **$\pi/4$**. De este último resultado se encontrar una aproximación para el valor de **$\pi$**.
 
 <div style="text-align: center">
@@ -123,7 +124,8 @@ Error relativo para muestra de **$n=`r n2`$** :  **$`r error_relativo_100000`$**
 
 
 
-## Problema 2
+## Problema 2 
+### Propiedades de los estimadores
 
 La simulación ayuda a entender y validad las propiedades de los estimadores estadísticos como son. insesgadez, eficiencia y la consistencia principalmente. El siguiente problema permite evidenciar las principales características de un grupo de estimadores propuestos para la estimación de un parámetro asociado a un modelo de probabilidad.
 
@@ -232,7 +234,65 @@ datatable(calculos1000, options = list(pageLength = 20, dom = 't'))
 * Para $\hat\theta_4$ es insesgado, eficiente y consistente para las muestras $n > 100$.
 * El estimador $\hat\theta_2$ para sus tres indicadores es muy grande, aunque se ve que comienza a mejorar a medida que el tamaño de la muestra aumenta.
 
+## Problemas 3
+### Teorema del Límite Central
+
+El Teorema del Límite Central es uno de los más importantes en la inferencia estadística y habla sobre la convergencia de los estimadores como la proporción muestral a la distribución normal. Algunos autores afirman que esta aproximación es bastante buena a partir del umbral $n>30$.
+
+A continuación se describen los siguientes pasos para su verificación:
+
+a) Realice una simulación en la cual genere una población de $n=1000$ (Lote), donde el porcentaje de individuos (supongamos plantas) enfermas sea del 50%.
+a) Genere una función que permita obtener una muestra aleatoria de la población y Calcule el estimador de la proporción muestral $\hat p$ para un tamaño de muestra dado $n$.
+a) Repita el escenario anterior $(b)n=500$ veces y analice los resultados en cuanto al comportamiento de los 500
+ resultados del estimador $\hat p$. ¿Qué tan simétricos o sesgados son los resultados obtenidos? y ¿qué se puede observar en cuanto a la variabilidad?. Realice en su informe un comentario sobre los resultados obtenidos.
+a) Repita los puntos b y c para tamaños de muestra $n=5, 10, 15, 20, 30, 50, 60, 100, 200, 500$. Compare los resultados obtenidos para los diferentes tamaños de muestra en cuanto a la normalidad. Utilice pruebas de bondad y ajuste (shapiro wilks :shspiro.test()) y métodos gráficos (gráfico de normalidad: qqnorm()). Comente en su informe los resultados obtenidos.
+a) Repita toda la simulación (puntos a – d), pero ahora para lotes con 10% de plantas enfermas y de nuevo para lotes con un 90% de plantas enfermas. Concluya sobre los resultados del ejercicio.
+
+### Formulación de la simulación
+#### a. Generando muestra 50-50
+
+```{r}
+generador_valores <- function(n, porcentaje1, procentaje2) {
+  p_sano <- round(n * porcentaje1)
+  p_enfermo <- round(n * procentaje2)
+  estado <- c(rep("sana", p_sano), rep("enferma", p_enfermo))
+  return(estado)
+}
+lote <- generador_valores(1000, 0.5, 0.5)
+```
 
 
+#### b. funcion que permita obtener una muestra aleatoria de la población y Calcule el estimador de la proporción muestral $\hat p$ para un tamaño de muestra dado $n$.
 
+```{r}
 
+generarMuestra <- function(lote, n) {
+  muestra <- sample(lote, n)
+  return(muestra)
+}
+calcularProporcion <- function(lote, n, estado) {
+  muestra <- generarMuestra(lote, n)
+  P <- sum(muestra == estado) / n
+  return(P)
+}
+
+```
+
+```{r}
+proporcion <- calcularProporcion(lote, 10, "enferma")
+```
+
+```{r}
+n <- 500
+resultados <- replicate(500, calcularProporcion(lote, 10, "enferma"))
+g <- ggplot(data.frame(resultados), aes(x = resultados)) +
+  geom_histogram(fill = "#377eb8", binwidth = 0.1) + 
+  geom_vline(xintercept = median(resultados), color = "#ff7f00", size = 1.5, linetype = "solid") +
+  labs(title = "Histograma de la muestra", x = "Estado", y = "Frecuencia") +
+  theme_minimal()
+ggplotly(g)
+```
+
+**¿Qué tan simétricos o sesgados son los resultados obtenidos?**
+
+**¿qué se puede observar en cuanto a la variabilidad?**
