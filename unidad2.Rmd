@@ -283,16 +283,66 @@ proporcion <- calcularProporcion(lote, 10, "enferma")
 ```
 
 ```{r}
+set.seed(123)
 n <- 500
 resultados <- replicate(500, calcularProporcion(lote, 100, "enferma"))
-g <- ggplot(data.frame(resultados), aes(x = resultados)) +
-  geom_histogram(fill = "#377eb8", binwidth = 0.1) + 
-  geom_vline(xintercept = median(resultados), color = "#ff7f00", linewidth = 1.5, linetype = "solid") +
-  labs(title = "Histograma de la muestra", x = "Estado", y = "Frecuencia") +
-  theme_minimal()
-ggplotly(g)
+hist(resultados, col="#377eb8", main = paste("Histograma de la muestra n =", n), xlab="Probabilidad de las muestras", ylab="Frecuencia", las=1, font.axis=4)
+abline (v=mean(resultados), lwd = 4, lty = 2, col="#ff7f00")
 ```
 
 **¿Qué tan simétricos o sesgados son los resultados obtenidos?**
 
 **¿qué se puede observar en cuanto a la variabilidad?**
+
+
+### Repita los puntos b y c para
+```{r, fig.width=16, fig.height=10}
+iterador <- c(5, 10, 15, 20, 30, 50, 60, 100, 200, 500)
+set.seed(123)
+for(n in iterador) {
+  resultados <- replicate(n, calcularProporcion(lote, 100, "enferma"))
+  par(mfrow=c(1,2))
+  hist(resultados, col="#377eb8", main = paste("Histograma de la muestra n =", n), xlab="Probabilidad de las muestras", ylab="Frecuencia", las=1, font.axis=4)
+  abline (v=mean(resultados), lwd = 4, lty = 2, col="#ff7f00")
+  shapiroRes <- shapiro.test(resultados)
+  print(shapiroRes)
+  qqnorm(resultados, col = "#377eb8")
+  qqline(resultados, col = "#ff7f00")
+}
+```
+
+
+```{r}
+set.seed(123)
+lote <- generador_valores(1000, 0.9, 0.1)
+iterador <- c(5, 10, 15, 20, 30, 50, 60, 100, 200, 500)
+for(n in iterador) {
+  resultados <- replicate(n, calcularProporcion(lote, 100, "enferma"))
+  par(mfrow=c(1,2))
+  hist(resultados, col="#377eb8", main = paste("Histograma de la muestra n =", n), xlab="Probabilidad de las muestras", ylab="Frecuencia", las=1, font.axis=4)
+  abline (v=mean(resultados), lwd = 4, lty = 2, col="#ff7f00")
+  qqnorm(resultados, col = "#377eb8", main = paste("QQ de la muestra n =", n))
+  qqline(resultados, col = "#ff7f00")
+  shapiroRes <- shapiro.test(resultados)
+  print(shapiroRes)
+}
+```
+### Repita toda la simulación (puntos a – d),
+
+```{r}
+set.seed(123)
+lote <- generador_valores(1000, 0.1, 0.9)
+iterador <- c(5, 10, 15, 20, 30, 50, 60, 100, 200, 500)
+
+for(n in iterador) {
+  resultados <- replicate(n, calcularProporcion(lote, 100, "enferma"))
+  par(mfrow=c(1,2))
+  hist(resultados, col="#377eb8", main = paste("Histograma de la muestra n =", n), xlab="Probabilidad de las muestras", ylab="Frecuencia", las=1, font.axis=4)
+  abline (v=mean(resultados), lwd = 4, lty = 2, col="#ff7f00")
+  shapiroRes <- shapiro.test(resultados)
+  print(shapiroRes)
+  qqnorm(resultados, col = "#377eb8")
+  qqline(resultados, col = "#ff7f00")
+}
+```
+
