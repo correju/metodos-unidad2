@@ -1,0 +1,142 @@
+---
+title: "Actividad unidad 2"
+output: 
+  html_document:
+    toc: true
+    toc_float:
+      collapsed: false
+      smooth_scroll: true
+    toc_position: left
+date: "2024-03-02"
+lang: es
+---
+
+
+
+<style type="text/css">
+  body {
+    font-size: 16px;
+    font-family: Arial, sans-serif;
+  }
+}
+</style>
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(plotly)
+library(ggplot2)
+library(tidyr)
+library(DT)
+```
+
+## Problemas 3
+### Teorema del Límite Central
+
+El Teorema del Límite Central es uno de los más importantes en la inferencia estadística y habla sobre la convergencia de los estimadores como la proporción muestral a la distribución normal. Algunos autores afirman que esta aproximación es bastante buena a partir del umbral $n>30$.
+
+A continuación se describen los siguientes pasos para su verificación:
+
+a) Realice una simulación en la cual genere una población de $n=1000$ (Lote), donde el porcentaje de individuos (supongamos plantas) enfermas sea del 50%.
+a) Genere una función que permita obtener una muestra aleatoria de la población y Calcule el estimador de la proporción muestral $\hat p$ para un tamaño de muestra dado $n$.
+a) Repita el escenario anterior $(b)n=500$ veces y analice los resultados en cuanto al comportamiento de los 500
+ resultados del estimador $\hat p$. ¿Qué tan simétricos o sesgados son los resultados obtenidos? y ¿qué se puede observar en cuanto a la variabilidad?. Realice en su informe un comentario sobre los resultados obtenidos.
+a) Repita los puntos b y c para tamaños de muestra $n=5, 10, 15, 20, 30, 50, 60, 100, 200, 500$. Compare los resultados obtenidos para los diferentes tamaños de muestra en cuanto a la normalidad. Utilice pruebas de bondad y ajuste (shapiro wilks :shspiro.test()) y métodos gráficos (gráfico de normalidad: qqnorm()). Comente en su informe los resultados obtenidos.
+a) Repita toda la simulación (puntos a – d), pero ahora para lotes con 10% de plantas enfermas y de nuevo para lotes con un 90% de plantas enfermas. Concluya sobre los resultados del ejercicio.
+
+### Formulación de la simulación
+#### a. Generando muestra 50-50
+
+```{r}
+generador_valores <- function(n, porcentaje1, procentaje2) {
+  p_sano <- round(n * porcentaje1)
+  p_enfermo <- round(n * procentaje2)
+  estado <- c(rep("sana", p_sano), rep("enferma", p_enfermo))
+  return(estado)
+}
+lote <- generador_valores(1000, 0.5, 0.5)
+```
+
+
+#### b. funcion que permita obtener una muestra aleatoria de la población y Calcule el estimador de la proporción muestral $\hat p$ para un tamaño de muestra dado $n$.
+
+```{r}
+
+generarMuestra <- function(lote, n) {
+  muestra <- sample(lote, n)
+  return(muestra)
+}
+calcularProporcion <- function(lote, n, estado) {
+  muestra <- generarMuestra(lote, n)
+  P <- sum(muestra == estado) / n
+  return(P)
+}
+
+```
+
+```{r}
+proporcion <- calcularProporcion(lote, 10, "enferma")
+```
+
+```{r}
+set.seed(123)
+n <- 500
+resultados <- replicate(500, calcularProporcion(lote, 100, "enferma"))
+hist(resultados, col="#377eb8", main = paste("Histograma de la muestra n =", n), xlab="Probabilidad de las muestras", ylab="Frecuencia", las=1, font.axis=4)
+abline (v=mean(resultados), lwd = 4, lty = 2, col="#ff7f00")
+```
+
+**¿Qué tan simétricos o sesgados son los resultados obtenidos?**
+
+**¿qué se puede observar en cuanto a la variabilidad?**
+
+
+### Repita los puntos b y c para
+```{r, fig.width=20, fig.height=10}
+iterador <- c(5, 10, 15, 20, 30, 50, 60, 100, 200, 500)
+set.seed(123)
+for(n in iterador) {
+  resultados <- replicate(n, calcularProporcion(lote, 100, "enferma"))
+  par(mfrow=c(1,2))
+  hist(resultados, col="#377eb8", main = paste("Histograma de la muestra n =", n), xlab="Probabilidad de las muestras", ylab="Frecuencia", las=1, font.axis=4)
+  abline (v=mean(resultados), lwd = 4, lty = 2, col="#ff7f00")
+  shapiroRes <- shapiro.test(resultados)
+  print(shapiroRes)
+  qqnorm(resultados, col = "#377eb8")
+  qqline(resultados, col = "#ff7f00")
+}
+```
+
+
+```{r}
+set.seed(123)
+lote <- generador_valores(1000, 0.9, 0.1)
+iterador <- c(5, 10, 15, 20, 30, 50, 60, 100, 200, 500)
+for(n in iterador) {
+  resultados <- replicate(n, calcularProporcion(lote, 100, "enferma"))
+  par(mfrow=c(1,2))
+  hist(resultados, col="#377eb8", main = paste("Histograma de la muestra n =", n), xlab="Probabilidad de las muestras", ylab="Frecuencia", las=1, font.axis=4)
+  abline (v=mean(resultados), lwd = 4, lty = 2, col="#ff7f00")
+  qqnorm(resultados, col = "#377eb8", main = paste("QQ de la muestra n =", n))
+  qqline(resultados, col = "#ff7f00")
+  shapiroRes <- shapiro.test(resultados)
+  print(shapiroRes)
+}
+```
+### Repita toda la simulación (puntos a – d),
+
+```{r}
+set.seed(123)
+lote <- generador_valores(1000, 0.1, 0.9)
+iterador <- c(5, 10, 15, 20, 30, 50, 60, 100, 200, 500)
+
+for(n in iterador) {
+  resultados <- replicate(n, calcularProporcion(lote, 100, "enferma"))
+  par(mfrow=c(1,2))
+  hist(resultados, col="#377eb8", main = paste("Histograma de la muestra n =", n), xlab="Probabilidad de las muestras", ylab="Frecuencia", las=1, font.axis=4)
+  abline (v=mean(resultados), lwd = 4, lty = 2, col="#ff7f00")
+  shapiroRes <- shapiro.test(resultados)
+  print(shapiroRes)
+  qqnorm(resultados, col = "#377eb8")
+  qqline(resultados, col = "#ff7f00")
+}
+```

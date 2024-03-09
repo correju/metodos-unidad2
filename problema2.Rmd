@@ -1,0 +1,140 @@
+---
+title: "Actividad unidad 2"
+output: 
+  html_document:
+    toc: true
+    toc_float:
+      collapsed: false
+      smooth_scroll: true
+    toc_position: left
+date: "2024-03-02"
+lang: es
+---
+
+
+
+<style type="text/css">
+  body {
+    font-size: 16px;
+    font-family: Arial, sans-serif;
+  }
+}
+</style>
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(plotly)
+library(ggplot2)
+library(tidyr)
+library(DT)
+```
+
+## Problema 2 
+### Propiedades de los estimadores
+
+La simulación ayuda a entender y validad las propiedades de los estimadores estadísticos como son. insesgadez, eficiencia y la consistencia principalmente. El siguiente problema permite evidenciar las principales características de un grupo de estimadores propuestos para la estimación de un parámetro asociado a un modelo de probabilidad.
+
+Sean $X1, X2, X3 \,y\, X4$, una muestra aleatoria de tamaño **$n=4$** cuya población la conforma una distribución exponencial con parámetro $\theta$ desconocido. Determine las características de cada uno de los siguientes estimadores propuestos:
+
+1. $\hat{\theta}_1 = \frac{X_1 + X_2}{6} + \frac{X_3 + X_4}{3}$
+
+1. $\hat{\theta}_2 = \frac{X_1 + 2X_2 + 3X_3 + 4X_4}{5}$
+
+1. $\hat{\theta}_3 = \frac{X_1 + X_2 + X_3 + X_4}{4}$
+
+1. $\hat{\theta}_4 = \frac{\min\{X_1, X_2, X_3, X_4\} + \max\{X_1, X_2, X_3, X_4\}}{2}$
+
+### Formulación de la simulación
+
+```{r}
+n <- 4
+m = 5000
+lam <- 0.5
+
+rep = rexp(m*n,rate = lam)
+df = data.frame(matrix(rep,nrow = m, ncol = n, byrow = TRUE))
+
+estimador1 <- function(m) { ((m[1] + m[2]) / 6) + ((m[3] + m[4]) / 3) }
+estimador2 <- function(m) { (m[1] + 2*m[2] + 3*m[3] + 4*m[4]) / 5 }
+estimador3 <- function(m) { mean(m) }
+estimador4 <- function(m) { (min(m) + max(m)) / 2 }
+
+estimarMuestra <- function(data, n_muestra, lam) {
+  teta <- 1 / lam
+  muestra <- data[sample(nrow(df), size=n_muestra), ]
+  t1 <- apply(muestra, 1, estimador1)
+  t2 <- apply(muestra, 1, estimador2)
+  t3 <- apply(muestra, 1, estimador3)
+  t4 <- apply(muestra, 1, estimador4)
+  return(data.frame(t1, t2, t3, t4))
+}
+calcularMetricas <- function(datos, n_muestra, lam) {
+  teta <- 1 / lam
+  media <- apply(datos, 2, mean)
+  varianza <- apply(datos, 2, var)
+  sesgo <- media - teta
+  return (data.frame(media = media, varianza = varianza, n=n_muestra, sesgo=sesgo))
+}
+
+obtenerGrafica <- function(datos, n_muestra, lam) {
+  teta <- 1 / lam
+  d <- pivot_longer(datos, cols = c(t1, t2, t3, t4), names_to = "categoria", values_to = "valor")
+  bp <- ggplot(d, aes(x = categoria, y = valor, fill = categoria)) +
+    geom_boxplot() +
+    geom_hline(yintercept = teta, color = "red", linetype = "dashed", linewidth = 1) +
+    scale_fill_manual(values = c("#377eb8", "#ff7f00", "#4daf4a", "#f781bf")) +
+    labs(title = paste("m =", n_muestra), x = "Categoría", y = "Valor") +
+    theme_minimal() 
+  bp <- ggplotly(bp)
+  return (bp)
+}
+```
+
+```{r, echo=FALSE}
+d <- estimarMuestra(df, 20, lam)
+calculos20 <- calcularMetricas(d, 20, lam)
+obtenerGrafica(d, 20, lam)
+
+d <- estimarMuestra(df, 50, lam)
+calculos50 <- calcularMetricas(d, 50, lam)
+obtenerGrafica(d, 50, lam)
+
+d <- estimarMuestra(df, 100, lam)
+calculos100 <- calcularMetricas(d, 100, lam)
+obtenerGrafica(d, 100, lam)
+
+d <- estimarMuestra(df, 1000, lam)
+calculos1000 <- calcularMetricas(d, 1000, lam)
+obtenerGrafica(d, 1000, lam)
+```
+
+### Resultados m=20
+
+```{r, echo=FALSE}
+datatable(calculos20, options = list(pageLength = 20, dom = 't'))
+```
+
+### Resultados m=50
+
+```{r, echo=FALSE}
+datatable(calculos50, options = list(pageLength = 20, dom = 't'))
+```
+
+### Resultados m=100
+
+```{r, echo=FALSE}
+datatable(calculos100, options = list(pageLength = 20, dom = 't'))
+
+```
+
+### Resultados m=1000
+
+```{r, echo=FALSE}
+datatable(calculos1000, options = list(pageLength = 20, dom = 't'))
+```
+
+### Conclusiones
+
+* Podemos ver que $\hat\theta_1$ y $\hat\theta_3$ son insesgados, eficientes y consistentes para las muestras $n = 20$, $n = 50$,$n = 100$ y $n = 1000$.
+* Para $\hat\theta_4$ es insesgado, eficiente y consistente para las muestras $n > 100$.
+* El estimador $\hat\theta_2$ para sus tres indicadores es muy grande, aunque se ve que comienza a mejorar a medida que el tamaño de la muestra aumenta.

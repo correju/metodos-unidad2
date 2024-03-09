@@ -1,0 +1,91 @@
+---
+title: "Actividad unidad 2"
+output: 
+  html_document:
+    toc: true
+    toc_float:
+      collapsed: false
+      smooth_scroll: true
+    toc_position: left
+date: "2024-03-02"
+lang: es
+---
+
+
+
+<style type="text/css">
+  body {
+    font-size: 16px;
+    font-family: Arial, sans-serif;
+  }
+}
+</style>
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(plotly)
+library(ggplot2)
+library(tidyr)
+library(DT)
+```
+## Problema 4
+### Estimacción boostrap
+
+
+Cuando se extrae una muestra de una población que no es normal y se requiere estimar un intervalo de confianza se pueden utilizar los métodos de estimación bootstrap. Esta metodología supone que se puede reconstruir la población objeto de estudio mediante un muestreo con reemplazo de la muestra que se tiene. Existen varias versiones del método. Una presentación básica del método se describe a continuación:
+
+
+
+El artículo de In-use Emissions from Heavy Duty Dissel Vehicles (J.Yanowitz, 2001) presenta las mediciones de eficiencia de combustible en millas/galón de una muestra de siete camiones. Los datos obtenidos son los siguientes: **7.69, 4.97, 4.56, 6.49, 4.34, 6.24 y 4.45**. Se supone que es una muestra aleatoria de camiones y que se desea construir un intervalo de confianza del 95 % para la media de la eficiencia de combustible de esta población. No se tiene información de la distribución de los datos. El método bootstrap permite construir intervalos de confianza del 95% - Para ilustrar el método suponga que coloca los valores de la muestra en una caja y extrae uno al azar. Este correspondería al primer valor de la muestra bootstrap $X^∗_1$. Después de anotado el valor se regresa $X^∗_1$ a la caja y se extrae el valor $X^∗_2$, regresandolo nuevamente. Este procedimiento se repite hasta completar una muestra de tamaño $n, X^*_1, X^∗_2,X^∗_3,X^*_n$, conformando la muestra bootstrap.
+
+Es necesario extraer un gran número de muestras (suponga k = 1000). Para cada una de las muestra bootstrap obtenidas se calcula la media $X^∗_i$, obteniéndose un valor para cada muestra. El intervalo de confianza queda conformado por los percentiles $P_{2.5}$ y $P{9_7.5}$. Existen dos métodos para estimarlo:
+
+---
+
+Metodo 1: <div align="center">$(P_2.5;P_97.5)$</div>
+
+---
+
+Metodo 2: <div align="center">$2\bar{X}-P_{97.5};2\bar{X} - P_{2.5}$</div>
+
+---
+
+Construya el intervalo de confianza por los dos métodos y compare los resultados obtenidos. Comente los resultados. Confiaría en estas estimaciones?
+
+
+### Generación muestra
+
+```{r}
+set.seed(123)
+k=1000
+X=c(7.69, 4.97, 4.56, 6.49, 4.34, 6.24, 4.45)
+n=length(X)
+boostrap = sample(X, replace = TRUE, size = n*k)
+matriz = matrix(boostrap, nrow = 1000, ncol = 7, byrow = TRUE)
+matriz = apply(matriz, 1, mean)
+promedioTotal = mean(matriz)
+```
+
+### Metodo 1
+
+```{r}
+m1 <- quantile(matriz, probs = c(0.025, 0.975))
+m1
+```
+
+### Metodo 2
+
+```{r}
+metodo2 = function(promedioTotal, percentiles) {
+  return(c(2*promedioTotal - percentiles[2], 2*promedioTotal - percentiles[1]))
+}
+
+m2 = metodo2(promedioTotal, m1)
+m2
+```
+
+```{r}
+hist(matriz, las=1, main="Histograma muestra", ylab = " ", xlab = " ", col="#4daf4a")
+abline(v=m1, col="#f781bf",lwd=2)
+abline(v=m2, col="#ff7f00",lwd=2)
+```
