@@ -112,6 +112,7 @@ $\Large\frac{|\pi - \pi_{estimado}|}{\pi} = \frac{|\pi - `r pi_estimado_1000`|}{
 error_relativo_1000 <- abs(pi - pi_estimado_1000) / pi
 error_relativo_10000 <- abs(pi - pi_estimado_10000) / pi
 error_relativo_100000 <- abs(pi - pi_estimado_100000) / pi
+#Todo correcto. Puesto que el ejercicio pide una estimación puntual, no presento comentarios adicionales.
 ```
 
 Error relativo para muestra de **$n=`r n1`$** : **$`r error_relativo_1000`$**
