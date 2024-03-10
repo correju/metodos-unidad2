@@ -53,7 +53,7 @@ Metodo 2: <div align="center">$2\bar{X}-P_{97.5};2\bar{X} - P_{2.5}$</div>
 Construya el intervalo de confianza por los dos métodos y compare los resultados obtenidos. Comente los resultados. Confiaría en estas estimaciones?
 
 
-### Generación muestra
+### Generación de muestras bootstrap
 
 ```{r}
 set.seed(123)
@@ -84,8 +84,20 @@ m2 = metodo2(promedioTotal, m1)
 m2
 ```
 
+El proceso de generación de muestras bootstrap arrojó intervalos de confianza diferenciados por su posición con respecto al soporte de la distribución reconstruida, particularmente, se tiene que el intervalo  construido por medio del método 2 se ubica aproximadamente 0,2 unidades (millas/galón) hacia la izquierda con respecto al intervalo construido por medio del método 2. Esta diferencia puede resultar importante en caso de emplear pruebas de hipótesis a replicar en grandes cantidades de vehículos y/o combustible, por lo cual se recomendaría una mayor atención a los detalles técnicos del contexto de los ejercicios a desarrollar con esta modelación al momento de escoger entre estos dos métodos.
+
+La muestra reconstruida y los intervalos obtenidos pueden observarse en el siguiente histograma (método 1 coloreado en rosa y método 2 coloreado en naranja):
+
 ```{r}
 hist(matriz, las=1, main="Histograma muestra", ylab = " ", xlab = " ", col="#4daf4a")
 abline(v=m1, col="#f781bf",lwd=2)
 abline(v=m2, col="#ff7f00",lwd=2)
 ```
+
+### ¿Confiaría en estas estimaciones?
+
+Debe notarse que la utilización del bootstrapping, en la mayoría de los casos, se presenta como un último recurso a falta de información suficiente sobre la distribución de los datos con los que se piensa trabajar. Así, debe tenerse en cuenta que la información disponible debería reflejar en un buen nivel el rango de variabilidad de la distribución subyacante.
+
+Por esta razón, es pertinente afirmar que el uso de estimaciones bootstrap puede resultar confiable en ejercicios en donde los pocos datos disponibles den fé de la variabilidad potencial de la variable aleatoria subyacente en el caso de análisis, incluso otorgando la posibilidad de formular hipótesis previas con respecto a la forma y patrones de la distribución a reconstruir a la luz de distribuciones teóricas.
+
+Este tipo de comportamientos probabilísticos pueden hallarse en muestras limitadas de ejercicios con variables cuantitativas técnicas y puntuales, tales como las del enunciado del problema resuelto (lo anterior puede evidenciarse en el grado de simetría en el histograma), por lo cual la estimación realizada puede considerarse como confiable (no existiendo ningún otro recurso disponible). Sin embargo, debe afirmarse que este método puede no resultar confiable en ejercicios donde las variables a estimar posean grados de ambigüedad en sus resultados, tales como ejercicios en ciencias sociales o casos en donde no se tenga una idea clara sobre la población sobre la que se realiza inferencia estadística.
