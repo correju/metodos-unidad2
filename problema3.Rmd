@@ -29,7 +29,7 @@ library(tidyr)
 library(DT)
 ```
 
-## Problemas 3
+## Problema 3
 ### Teorema del Límite Central
 
 El Teorema del Límite Central es uno de los más importantes en la inferencia estadística y habla sobre la convergencia de los estimadores como la proporción muestral a la distribución normal. Algunos autores afirman que esta aproximación es bastante buena a partir del umbral $n>30$.
@@ -87,10 +87,13 @@ abline (v=mean(resultados), lwd = 4, lty = 2, col="#ff7f00")
 
 **¿Qué tan simétricos o sesgados son los resultados obtenidos?**
 
-**¿qué se puede observar en cuanto a la variabilidad?**
+Dado el tamaño de la población, fijado en $n = 1000$, se tiene que el conjunto de estimadores obtenidos bajo las $500$ iteraciones del proceso denota un comportamiento distribucional que se aproxima a la distribución normal. Como se observa en el gráfico anterior, el histograma que denota la distribución empírica construida presenta una similitud con la campana de Gauss, exponiendo alta simetría. Lo anterior se resume en que el intervalo con mayor frecuencia de la distribución se ubica en proporciones muestrales de entre el $45\%$ y el $55\%$ (teniendo como referencia el $50\%$ de la media poblacional), existiendo un sesgo menor hacia la izquierda, el cual puede evidenciarse en las cerca de 50 observaciones adicionales en que el intervalo $(45\% - 50\%]$ supera al intervalo $(50\% - 55\%]$.
 
+**¿Qué se puede observar en cuanto a la variabilidad?**
 
-### Repita los puntos b y c para
+Las observaciones de las proporciones muestrales extraídas denotan una variabilidad bajo la cual las observaciones obtenidas acaparan una gran parte del soporte de la distribución  (entre el $(0\%$ y $100\%]$), obervándose además que el comportamiento de esta variabilidad obedece al patrón simetrico de frecuencia de la compana de Gauss: como se mencionó en el párrafo anterior, la mayor parte de la frecuencia se concentra en el intervalo entre $45\%$ y el $55\%$, sin embargo, como lo muestra el histograma, pueden hallarse proporciones muestrales de entre $35\%$ y $70\%$, las cuales se ubican en las colas de la distribución por ser menos probables. Además, se tiene que bajo este tamaño de muestra no se hallan observaciones pertenecientes a los extremos de la distribución con incluso menor probabilidad, lo cual también es una señal de congruencia con la distribución normal.
+
+### Repita los puntos b y c para tamaños de muestra $n=5, 10, 15, 20, 30, 50, 60, 100, 200, 500$.
 ```{r, fig.width=20, fig.height=10}
 iterador <- c(5, 10, 15, 20, 30, 50, 60, 100, 200, 500)
 set.seed(123)
@@ -106,7 +109,14 @@ for(n in iterador) {
 }
 ```
 
+Al realizar este proceso de tal forma que se incrementan progresivamente las iteraciones, se puede evidenciar de forma paulatina la convergencia de la distribución de las proporciones muestrales hacia la distribución normal. Para tamaños de muestra de $n=5, 10, 15, 20, 30$, los histogramas obtenidos denotan comportamientos asimétricos en las simulaciones iniciales, pero que convergen hacia la campana de Gauss a medida que incrementa $n$, lo anterior se refuerza con el comportamiento de sus correspondientes gráficos Q-Q, donde la línea de regresión de las coordenadas entre cuantiles téoricos y empíricos tiende a acercarse a una mayor bondad de ajuste.
 
+En cuanto al test de Shapiro-Wilk, se tiene que el p-valor del estadístico $W$ es muy alto y no se puede rechazar la hipótesis de normalidad de la distribución, excepto para $n = 30$, lo cual, dada la totalidad de los resultados para todos los tamaños de muestra, nos dice que podemos afianzarnos en el Teorema del Límite Central a partir del tamaño de muestra $n > 30$. Esta afirmación es congruente con lo expuesto en el enunciado del problema.
+
+Nótese que la convergencia hacia la distribución normal se solidifica en los mayores tamaños de muestra $(n > 30)$, pues se tienen estadísticos $W$ altos, altas bondades de ajuste en los gráficos Q-Q, e histogramas que tienden a formas simétricas en el sentido de la campana de Gauss. Evidenciándose incluso una total simetría en el intervalo de mayor frecuencia para el caso $n = 500$ en el histograma final.
+
+
+### Lotes con 10% de plantas enfermas.
 ```{r}
 set.seed(123)
 lote <- generador_valores(1000, 0.9, 0.1)
@@ -122,7 +132,12 @@ for(n in iterador) {
   print(shapiroRes)
 }
 ```
-### Repita toda la simulación (puntos a – d),
+
+Al realizar este ejercicio para el caso de lotes con $10\%$ de plantas enfermas, se observa un comportamiento similar de convergencia hacia la distribución normal desde las distribuciones empíricas de proporciones muestrales, existiendo asimetrías en muestras pequeñas, que desaparecen en los histogramas con tamaños de muestra superiores, de tal forma que se obtienen simetrías en el sentido de la campaña de Gauss, con la mayor frecuencia anidada en el intervalo entre $5\%$ y $15\%$. En cuanto al gráfico QQ, se obtiene un comportamiento esperado de tendencia al incremento en la bondad de ajuste del gráfico a medida que aumentan los tamaños de muestra.
+
+El test Shapiro Wilk presenta algunos comportamientos irregulares en términos de p-valores muy bajos, sin embargo, los estadísticos $W$ presentan valores altos que sustentan la hipótesis nula de distribución normal de las proporciones muestrales. La contradicción anterior puede radicar en overfitting de la línea de regresión en función de la media poblacional ubicándose en un valor límite del soporte ($10\%$).
+
+### Lotes con 90% de plantas enfermas.
 
 ```{r}
 set.seed(123)
@@ -134,9 +149,16 @@ for(n in iterador) {
   par(mfrow=c(1,2))
   hist(resultados, col="#377eb8", main = paste("Histograma de la muestra n =", n), xlab="Probabilidad de las muestras", ylab="Frecuencia", las=1, font.axis=4)
   abline (v=mean(resultados), lwd = 4, lty = 2, col="#ff7f00")
-  shapiroRes <- shapiro.test(resultados)
-  print(shapiroRes)
   qqnorm(resultados, col = "#377eb8")
   qqline(resultados, col = "#ff7f00")
+  shapiroRes <- shapiro.test(resultados)
+  print(shapiroRes)
 }
 ```
+
+La predominancia del Teorema del Límite Central se repite al realizar las iteraciones para el caso de 90% de plantas enfermas, existiendo el mismo proceso de convergencia en función del incremento de tamaños de muestra, visto de forma gráfica en los histogramas y en el gráfico Q-Q, y en el test Shapiro-Wilk (con excepciones análogas a lo mencionado para el escenario anterior). Así, las asimetrías vistas en tamaños menores de muestra desaparecen bajo incrementos y se obtiene una distribución empírica simétrica en el sentido de la campana de Gauss, donde los valores de proporciones muestrales con mayor frecuencia se ubican en el intervalo entre  $85\%$ y $95\%$.
+
+### Conclusiones.
+
+El ejercicio realizado permitió evidenciar la generalidad del Teorema del Límite Central en un sentido netamente práctico, facilitando la comprensión del funcionamiento de su proceso de convergencia y el mecanismo a través del cuál sus consecuencias son independientes de la distribución téorica con la que se modelen los datos.
+Lo anterior el eje metodológico de sus amplios usos en inferencia estadística y diseño de experimentos aleatorios, pues se reconoce el comportamiento simétrico de la distribución normal como un supuesto plausible a emplear en ejercicios puntuales, siendo esto análogo al principio de máxima entropía.
